@@ -38,24 +38,32 @@ def main():
     
     # Step 2: Wait for instruments (exactly like Wyatt does)
     log("=== Step 2: Waiting for Instruments ===")
-    log("Calling AstraAdmin().wait_for_instruments()...")
+    log("About to call AstraAdmin().wait_for_instruments()...")
+    log("  → This waits for InstrumentDetectionCompleted event (REQUIRED)")
+    log("  → If this hangs, the event system has issues")
+    log("  → Starting wait now...")
     
     try:
         AstraAdmin().wait_for_instruments()
-        log("✓ Instruments detected")
+        log("✓ Instruments detected - event system working!")
     except Exception as e:
         log(f"✗ Error waiting for instruments: {e}")
+        log("  → This indicates event system problems")
         return False
     
     # Step 3: Create experiment (exactly like Wyatt does)
     log("=== Step 3: Creating Experiment ===")
     method_path = r"//dbf/Method Builder/Owen/test_method_3"
     log(f"Template: {method_path}")
-    log("Calling AstraAdmin().new_experiment_from_template()...")
+    log("About to call AstraAdmin().new_experiment_from_template()...")
+    log("  → This waits for ExperimentRead and ExperimentRun events")
+    log("  → If this hangs, wrapper event handling has issues")
+    log("  → Starting experiment creation now...")
     
     try:
         experiment_id = AstraAdmin().new_experiment_from_template(method_path)
         log(f"✓ Experiment created successfully - ID: {experiment_id}")
+        log("✓ Wrapper event system working properly!")
         
         # Get experiment name to confirm it's working
         try:
@@ -64,13 +72,11 @@ def main():
         except Exception as e:
             log(f"⚠ Could not get experiment name: {e}")
         
-        # Close experiment when done
-        log("=== Cleanup ===")
-        try:
-            AstraAdmin().close_experiment(experiment_id)
-            log("✓ Experiment closed")
-        except Exception as e:
-            log(f"⚠ Error closing experiment: {e}")
+        # Leave experiment open for inspection
+        log("=== Completion ===")
+        log(f"✓ Experiment {experiment_id} remains open for inspection")
+        log("  → Check ASTRA UI to verify experiment was created properly")
+        log("  → Close experiment manually when finished")
         
         return True
         
